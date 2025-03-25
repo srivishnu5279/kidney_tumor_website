@@ -4,6 +4,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from PIL import Image
 import os
+import io
 
 st.markdown("""
     <style>
@@ -67,7 +68,13 @@ binary_model = load_model("models/binary_model_kidney.h5")
 multiclass_model = load_model("models/multiclass_model_kidney.h5")
 
 def predict_pipeline(image):
-    img = image.resize((224, 224))
+    # Convert the PIL image to a BytesIO object
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format="JPEG")  # Save the image to bytes
+    image_bytes.seek(0)  # Move to the start of the byte stream
+
+    # Load the image using Keras' load_img function
+    img = load_img(image_bytes, target_size=(224, 224))  
     img_array = img_to_array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
